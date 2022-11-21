@@ -1,0 +1,64 @@
+---
+- name: RND KVM Preparation role
+  hosts: rndhosts
+  tasks: 
+      - name: Setup rnd kb repo
+        get_url:
+          url: 'http://10.10.16.195/repos.php?repos%5B%5D=rhel90-BaseOS&repos%5B%5D=rhel90-AppStream&auto=1'
+          dest: /etc/yum.repos.d/local.repo
+          mode: '0544'
+
+      - name: Install epel repo
+        yum:
+          name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+
+      - name: Install some dev packages
+        tags: packages
+        yum:
+          name:
+            - screen
+            - sshpass
+            - ansible
+            - python3
+            - git
+            - net-tools
+            - nmap
+            - vim
+          update_cache: yes
+          #note nmap is only separate package in rhel9. May need to split this if we aim to support other rhel
+
+      - name: Install libvirt packages
+        tags: packages
+        yum:
+          name:
+            - libvirt
+            - qemu-kvm
+            - virt-install
+            - guestfs-tools
+            - virt-manager
+          update_cache: yes
+
+      - name: Install tuned packages
+        tags: packages
+        yum:
+          name:
+            - tuned
+          update_cache: yes
+        register: tunedinst
+      
+      - name: Start and enable tuned daemon
+        tags: packages, service, tuned
+        service:
+          name: tuned
+          enabled: yes
+          state: started
+        when: tunedinst is defined and tunedinst.changed
+
+      - name: Switch to tuned virtual-host profile
+        tags: tuned
+        shell:
+          cmd: |-
+            tuned-adm profile virtual-host && touch /root/vhprofset
+          creates: /root/vhprofset
+
+       
