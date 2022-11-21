@@ -1,0 +1,19 @@
+---
+- name: copy files to destination
+  hosts: rndhosts
+  connection: local
+  tasks:
+    - name: GET image
+      get_url:
+          url: https://cloud-images.ubuntu.com/focal/20220715/focal-server-cloudimg-amd64.img
+          dest: /home/feroz
+          mode: 0777
+    - name: copy the image 
+      copy:
+        src: /home/feroz/focal-server-cloudimg-amd64.img
+        dest: /home/feroz/focal-server-cloudimg-amd64.img
+    - name: Transfer the script
+      copy: src=/home/feroz/test/demo.sh dest=/home/feroz/vm.sh mode=0777
+    - name: Execute the script
+      command: sh /home/feroz/vm.sh
+    
