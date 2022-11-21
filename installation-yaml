@@ -4,7 +4,7 @@
   tasks: 
       - name: Setup rnd kb repo
         get_url:
-          url: 'http://10.10.16.195/repos.php?repos%5B%5D=rhel90-BaseOS&repos%5B%5D=rhel90-AppStream&auto=1'
+          url: '<url>'
           dest: /etc/yum.repos.d/local.repo
           mode: '0544'
 
